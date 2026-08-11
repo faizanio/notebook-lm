@@ -1,8 +1,10 @@
 import IORedis from 'ioredis'
-import 'dotenv/config'
+import { config } from './config.js'
 
-export const redisConnection = new IORedis({
-    host: process.env.REDIS_HOST,
-    port: process.env.REDIS_PORT,
-    maxRetriesPerRequest: null
-})
+export const redisConnection = config.REDIS_URL
+    ? new IORedis(config.REDIS_URL, { maxRetriesPerRequest: null })
+    : new IORedis({
+        host: config.REDIS_HOST,
+        port: config.REDIS_PORT,
+        maxRetriesPerRequest: null,
+    })

@@ -3,6 +3,8 @@ import multer from "multer";
 import { createSource } from "../controllers/upload.controller.js";
 import { requireAuth } from "../middlewares/requireAuth.js";
 import { uploadLimiter } from "../middlewares/ratelimit.middleware.js";
+import { CloudinaryStorage } from 'multer-storage-cloudinary'
+import { cloudinary } from "../../config/cloudinary.js";
 
 const router = Router()
 
@@ -13,13 +15,26 @@ const ALLOWED_MIME = {
 
 const MAX_FILE_SIZE = 20 * 1024 * 1024 //20mb
 
-const storage = multer.diskStorage({
-  destination: 'src/uploads/',
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9)
-    cb(null, unique + path.extname(file.originalname))
+const storage = new CloudinaryStorage({
+  cloudinary: cloudinary,
+  params: async (req, file) => {
+    const ext = file.originalname.toLowerCase().split('.').pop()
+    return {
+      folder: 'rag-sources',
+      resource_type: 'raw', // required for non-image files (PDF, VTT)
+      public_id: `${Date.now()}-${file.originalname.replace(/\.[^/.]+$/, '')}`,
+      format: ext,
+    }
   }
 })
+
+// const storage = multer.diskStorage({
+//   destination: 'src/uploads/',
+//   filename: (req, file, cb) => {
+//     const unique = Date.now() + '-' + Math.round(Math.random() * 1e9)
+//     cb(null, unique + path.extname(file.originalname))
+//   }
+// })
 
 router.use(requireAuth())
 

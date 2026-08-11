@@ -93,6 +93,10 @@ export const createSource = async (req, res) => {
                     })
                 }
 
+                if (!url || url.length > 2000 || !/^https?:\/\//.test(url)) {
+                    return res.status(400).json({ success: false, message: 'Invalid URL' })
+                }
+
                 sourceData.name = url
                 sourceData.sourceUrl = url
                 jobData.url = url

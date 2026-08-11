@@ -1,7 +1,6 @@
 import express from 'express'
 import cors from 'cors'
 import { config } from '../config/config.js'
-import 'dotenv/config'
 
 import './worker/indexing.worker.js'
 import uploadRoute from './routes/upload.route.js'
@@ -14,7 +13,7 @@ const app = express()
 
 const allowOrigins = [
   'http://localhost:5173',
-  process.env.FRONTEND_URL
+  config.FRONTEND_URL
 ].filter(Boolean)
 
 app.use(cors({

@@ -1,4 +1,4 @@
-import rateLimit from "express-rate-limit";
+import rateLimit, { ipKeyGenerator } from "express-rate-limit";
 import RedisStore from "rate-limit-redis";
 import { redisConnection } from "../../config/redis.js";
 
@@ -9,7 +9,7 @@ function makeLimiter({ windowMs, max, message }) {
         max,
         standardHeaders: true,
         legacyHeaders: false,
-        keyGenerator: (req) => req.auth?.userId || req.ip,
+        keyGenerator: (req) => req.auth?.userId || ipKeyGenerator(req.ip),
         store: new RedisStore({
             sendCommand: (...args) => redisConnection.call(...args),
             prefix: 'rl:'

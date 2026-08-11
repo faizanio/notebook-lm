@@ -29,10 +29,10 @@ export const indexingWorker = new Worker(
             })
 
         } catch (error) {
-            await prisma.source.update({
-                where: { id: sourceId },
-                data: { status: 'FAILED', errorMessage: error?.message }
-            })
+            // await prisma.source.update({
+            //     where: { id: sourceId },
+            //     data: { status: 'FAILED', errorMessage: error?.message }
+            // })
 
             throw error
         }

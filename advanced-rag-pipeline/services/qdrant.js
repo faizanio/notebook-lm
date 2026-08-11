@@ -4,7 +4,8 @@ import { config } from "../config/config.js";
 
 
 const client = new QdrantClient({
-    url: config.QDRANT_URL
+    url: config.QDRANT_URL,
+    apiKey: config.QDRANT_API_KEY,
 })
 
 const COLLECTION = config.QDRANT_COLLECTION
