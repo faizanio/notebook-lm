@@ -2,8 +2,11 @@ import fs from 'fs/promises'
 import { getSignedCloudinaryUrl } from '../utils/cloudinaryHelper.js'
 
 export async function extractVtt(fileUrl) {
-    const fetchUrl = getSignedCloudinaryUrl(fileUrl)
-    const res = await fetch(fetchUrl)
+    let fetchUrl = getSignedCloudinaryUrl(fileUrl)
+    let res = await fetch(fetchUrl)
+    if (!res.ok && fetchUrl !== fileUrl) {
+        res = await fetch(fileUrl)
+    }
     if (!res.ok) {
         throw new Error(`Failed to fetch VTT from Cloudinary: ${res.status}`)
     }
