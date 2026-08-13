@@ -21,16 +21,30 @@ export async function createCollectionIfNotExists() {
         e => e.name === COLLECTION
     )
 
-    if (exists) return
+    if (!exists) {
+        await client.createCollection(COLLECTION, {
+            vectors: {
+                size: 1536,
+                distance: 'Cosine'
+            }
+        })
+        console.log("✅ Qdrant Collection Created");
+    }
 
-    await client.createCollection(COLLECTION, {
-        vectors: {
-            size: 1536,
-            distance: 'Cosine'
-        }
-    })
-
-    console.log("✅ Qdrant Collection Created");
+    try {
+        await client.createPayloadIndex(COLLECTION, {
+            field_name: 'notebookId',
+            field_schema: 'keyword',
+            wait: true
+        })
+        await client.createPayloadIndex(COLLECTION, {
+            field_name: 'sourceId',
+            field_schema: 'keyword',
+            wait: true
+        })
+    } catch (err) {
+        // Ignore error if indexes already exist
+    }
 }
 
 
@@ -63,6 +77,7 @@ export async function storeVectors(chunks, embeddings, meta = {}) {
 
 
 export async function searchVectors(collectionName, vector, limit = 5, notebookId = null) {
+    await createCollectionIfNotExists()
     const response = await client.search(collectionName, {
         vector,
         limit,
