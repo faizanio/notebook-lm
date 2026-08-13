@@ -52,6 +52,7 @@ export function QueryPanel({ notebookId }: QueryPanelProps) {
   const [expandedPipeline, setExpandedPipeline] = useState<Record<string, boolean>>({})
 
   const chatEndRef = useRef<HTMLDivElement>(null)
+  const textareaRef = useRef<HTMLTextAreaElement>(null)
   const api = useApi()
 
   const queryMutation = useMutation({
@@ -106,6 +107,7 @@ export function QueryPanel({ notebookId }: QueryPanelProps) {
     const textToSend = customQuery || inputQuery
     const trimmed = textToSend.trim()
     if (!trimmed || queryMutation.isPending) return
+    textareaRef.current?.blur()
     queryMutation.mutate(trimmed)
   }
 
@@ -195,11 +197,13 @@ export function QueryPanel({ notebookId }: QueryPanelProps) {
                 {EXAMPLE_PROMPTS.map((prompt, idx) => (
                   <button
                     key={idx}
+                    disabled={queryMutation.isPending}
                     onClick={() => {
+                      if (queryMutation.isPending) return
                       setInputQuery(prompt)
                       handleSubmit(undefined, prompt)
                     }}
-                    className="p-3 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-900 hover:border-indigo-500/40 text-xs text-slate-300 text-left transition-all flex items-center justify-between group"
+                    className="p-3 rounded-xl border border-slate-800 bg-slate-900/50 hover:bg-slate-900 hover:border-indigo-500/40 text-xs text-slate-300 text-left transition-all flex items-center justify-between group disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span className="truncate pr-2">{prompt}</span>
                     <MessageSquarePlus className="h-3.5 w-3.5 text-slate-500 group-hover:text-indigo-400 shrink-0" />
@@ -341,6 +345,7 @@ export function QueryPanel({ notebookId }: QueryPanelProps) {
       <div className="p-4 border-t border-slate-800/80 bg-slate-950/80">
         <form onSubmit={handleSubmit} className="relative">
           <Textarea
+            ref={textareaRef}
             value={inputQuery}
             onChange={(e) => setInputQuery(e.target.value)}
             onKeyDown={(e) => {
@@ -349,9 +354,14 @@ export function QueryPanel({ notebookId }: QueryPanelProps) {
                 handleSubmit()
               }
             }}
-            placeholder="Ask a question about your uploaded sources... (Press Enter to send)"
+            disabled={queryMutation.isPending}
+            placeholder={
+              queryMutation.isPending
+                ? 'Processing question & generating grounded answer...'
+                : 'Ask a question about your uploaded sources... (Press Enter to send)'
+            }
             rows={2}
-            className="bg-slate-900 border-slate-800 text-slate-100 placeholder:text-slate-500 pr-14 text-xs rounded-xl focus-visible:ring-indigo-500 resize-none"
+            className="bg-slate-900 border-slate-800 text-slate-100 placeholder:text-slate-500 pr-14 text-xs rounded-xl focus-visible:ring-indigo-500 resize-none disabled:opacity-60 disabled:cursor-not-allowed disabled:bg-slate-900/60"
           />
           <Button
             type="submit"

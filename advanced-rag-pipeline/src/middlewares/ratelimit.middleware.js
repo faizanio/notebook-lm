@@ -29,7 +29,7 @@ export const uploadLimiter = makeLimiter({
 
 export const queryLimiter = makeLimiter({
     windowMs: 60 * 1000,
-    max: 7,
+    max: 15,
     message: 'Query limit reached. Try again later'
 })
 
